@@ -1,5 +1,3 @@
-# Auth_Wiki
-Team parrot zuri project
+# meme_wiki
 
-Pull from dev branch and make a PR to dev 
-not main
+A Meme Library Website
