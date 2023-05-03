@@ -56,6 +56,16 @@ def jokes_list(request):
         serializer = JokeSerializer(jokes,many=True)
         return Response(serializer.data)
 
+@api_view(['GET'])
+def filter_jokes(request):
+    if request.method == 'GET':
+        jokes = Joke.objects.all()
+        serializer = JokeSerializer(jokes,many=True)
+        return Response(serializer.data)
+
+
+
+
 
 @api_view(['GET','PUT','DELETE'])
 def jokes_details(request,id):
