@@ -5,6 +5,9 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from rest_framework import generics
+from rest_framework.filters import SearchFilter,OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
 from .serializers import *
 
@@ -12,18 +15,10 @@ import requests
 
 # Create your views here.
 
-def jokes(request):
-    #pull data from third party rest api
-    response = requests.get('https://joke.deno.dev/all')
-    #convert reponse data into json
-    jokes = response.json()
-    print(jokes)
-    return HttpResponse("jokes")
-    pass
-
+# Get Jokes from External Api
 
 @csrf_exempt
-def joke_endpoint(request):
+def joke_external(request):
     # Make a GET request to the external API endpoint
     response = requests.get('https://joke.deno.dev/all')
 
@@ -49,22 +44,48 @@ def joke_endpoint(request):
         return JsonResponse({'status': 'failure'})
 
 
+# Get all Jokes in Database 
+class JokeList(generics.ListAPIView):
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['type']
+    ordering_fields = ['type','setup']
+
+
+#  Get a Joke from the Database
+class JokeDetail(generics.RetrieveAPIView):
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+    lookup_field=('id')
+
+
+#  Create a Joke
+class JokeCreate(generics.CreateAPIView):
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+#  Delete a Joke
+class JokeDelete(generics.DestroyAPIView):
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+    lookup_field = ('id')
+
+
+
+'''
+To be back 
+
 @api_view(['GET'])
 def jokes_list(request):
     if request.method == 'GET':
         jokes = Joke.objects.all()
         serializer = JokeSerializer(jokes,many=True)
         return Response(serializer.data)
-
-@api_view(['GET'])
-def filter_jokes(request):
-    if request.method == 'GET':
-        jokes = Joke.objects.all()
-        serializer = JokeSerializer(jokes,many=True)
-        return Response(serializer.data)
-
-
-
 
 
 @api_view(['GET','PUT','DELETE'])
@@ -89,4 +110,4 @@ def jokes_details(request,id):
         joke.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-        
+'''
