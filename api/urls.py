@@ -6,8 +6,10 @@ from .views import *
 schema_view = get_swagger_view(title='Jokes Api')
 
 urlpatterns = [
-    path('', jokes, name = 'jokes'),
-    path('external_jokes/',joke_endpoint),
-    path('all_jokes/',jokes_list),
-    path('jokes/<str:id>',jokes_details)
+    path('jokes/external_jokes/',joke_external),
+    path('jokes/create/',JokeCreate.as_view()),
+    path('jokes/all_jokes/',JokeList.as_view()),
+    path('jokes/<str:id>',JokeDetail.as_view()),
+    path('jokes/delete/<str:id>',JokeDelete.as_view()),
+
 ]
